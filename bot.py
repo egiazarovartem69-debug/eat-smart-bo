@@ -7,7 +7,8 @@ import threading
 import time
 import random
 
-TOKEN = "8791314159:AAEkTRKl6ki13fR1yEkeNzRn4gxMM2neKW0"
+# Токен из переменной окружения (Render) или локально для тестов
+TOKEN = os.environ.get("BOT_TOKEN", "8791314159:AAEkTRKl6ki13fR1yEkeNzRn4gxMM2neKW0")
 bot = telebot.TeleBot(TOKEN)
 
 # ==================== БАЗА ПРОДУКТОВ (150+) ====================
@@ -132,7 +133,6 @@ def check_alarms():
                         bot.send_message(uid, f"⏰ *НАПОМИНАНИЕ!*\n\n{alarm['text']}", parse_mode="Markdown")
                     except:
                         pass
-        # Сброс флага в полночь
         if datetime.now().strftime("%H:%M") == "00:00":
             for u in user_data.values():
                 for a in u["alarms"]:
@@ -287,7 +287,6 @@ def cb(c):
         kb.add(InlineKeyboardButton("🔙 Назад", callback_data="diary"))
         bot.edit_message_text(txt, c.message.chat.id, c.message.message_id, parse_mode="Markdown", reply_markup=kb)
     
-    # ==================== БУДИЛЬНИК ====================
     elif c.data == "alarm":
         bot.edit_message_text("⏰ *Управление будильниками*", c.message.chat.id, c.message.message_id, parse_mode="Markdown", reply_markup=alarm_kb(uid))
     
@@ -381,7 +380,6 @@ def add_alarm_handler(m, uid):
         parts = m.text.split(" ", 1)
         alarm_time = parts[0]
         alarm_text = parts[1] if len(parts) > 1 else "Напоминание!"
-        # Проверка формата времени ЧЧ:ММ
         time.strptime(alarm_time, "%H:%M")
         u["alarms"].append({"time": alarm_time, "text": alarm_text, "triggered_today": False})
         bot.send_message(m.chat.id, f"✅ Будильник добавлен!\n\n⏰ {alarm_time} - {alarm_text}", reply_markup=main_kb())
